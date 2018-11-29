@@ -19,11 +19,64 @@ System::~System()
 }
 
 void System::applyPeriodicBoundaryConditions() {
-    // Read here: http://en.wikipedia.org/wiki/Periodic_boundary_conditions#Practical_implementation:_continuity_and_the_minimum_image_convention
+  for (Atom *atomi : m_atoms){
+    if (atomi->position.x()<-m_systemSize.x()*0.5){
+      atomi->position.components[0]+=m_systemSize.x();
+      }
+    if (atomi->position.x()>= m_systemSize.x()*0.5){
+      atomi->position.components[0]-=m_systemSize.x();
+	}
+    
+    if (atomi->position.y()<-m_systemSize.y()*0.5){
+      atomi->position.components[1]+=m_systemSize.y();
+    }
+    if (atomi->position.y()>= m_systemSize.y()*0.5){
+      atomi->position.components[1]-=m_systemSize.y();
+    }
+       
+    if (atomi->position.z()<-m_systemSize.z()*0.5){
+      atomi->position.components[2]+=m_systemSize.z();
+    }
+    if (atomi->position.z()>= m_systemSize.z()*0.5){
+      atomi->position.components[2]-=m_systemSize.z();
+    }
+    
+    for(Atom *atomj : m_atoms){
+      if(atomi!=atomj){
+      double dx=atomj->position.x()-atomi->position.x();
+      if (dx>m_systemSize.x()*0.5){
+	dx-=m_systemSize.x();
+      }
+      if (dx<= -m_systemSize.x()*0.5){
+	dx+=m_systemSize.x();
+      }
+      double dy=atomj->position.y()-atomi->position.y();
+      if (dy>m_systemSize.y()*0.5){
+	dy-=m_systemSize.y();
+      }
+      if (dy<= -m_systemSize.y()*0.5){
+	dy+=m_systemSize.y();
+      }
+      double dz=atomj->position.z()-atomi->position.z();
+      if (dz>m_systemSize.z()*0.5){
+	dz-=m_systemSize.z();
+      }
+      if (dz<= -m_systemSize.z()*0.5){
+	dz+=m_systemSize.z();
+      }
+      } 
+    }
+  }
 }
 
 void System::removeTotalMomentum() {
     // Find the total momentum and remove momentum equally on each atom so the total momentum becomes zero.
+  for (Atom*atomi:m_atoms){
+    double px=atomi->mass()*atomi->velocity.x();
+    double py=atomi->mass()*atomi->velocity.y();
+    double pz=atomi->mass()*atomi->velocity.z();
+    momentum.push_back((px, py, pz));
+  }
 }
 
 void System::createFCCLattice(int numberOfUnitCellsEachDimension, double latticeConstant, double temperature) {
